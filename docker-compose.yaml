@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  web:
+    build: .
+    command: web
+    env_file: .env
+    ports:
+      - "${API_LISTEN_PORT}:${API_LISTEN_PORT}"
+    depends_on:
+      - db
+
+  db:
+    image: arm64v8/postgres:15
+    env_file: .env
+    environment:
+      POSTGRES_PASSWORD: ${API_POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/postgresql/data/
+    ports:
+      - "${API_POSTGRES_PORT}:${API_POSTGRES_PORT}"
+    command: -p ${API_POSTGRES_PORT}
+
+volumes:
+  postgres_data:
