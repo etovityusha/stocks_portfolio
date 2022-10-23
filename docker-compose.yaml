@@ -10,6 +10,13 @@ services:
     depends_on:
       - db
 
+  migrator:
+    build: .
+    command: migrator
+    env_file: .env
+    depends_on:
+      - db
+
   db:
     image: arm64v8/postgres:15
     env_file: .env
