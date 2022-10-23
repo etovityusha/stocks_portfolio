@@ -17,10 +17,21 @@ if __name__ == "__main__":
 
             subprocess.call(
                 " ".join(
-                    ["uvicorn", "web:app", "--reload", "--port", str(_listen_port), "--host", _listen_host,
-                     "--log-level", _logger_level]
+                    [
+                        "uvicorn",
+                        "web:app",
+                        "--reload",
+                        "--port",
+                        str(_listen_port),
+                        "--host",
+                        _listen_host,
+                        "--log-level",
+                        _logger_level,
+                    ]
                 ),
                 shell=True,
             )
+        case "migrator":
+            subprocess.call("alembic upgrade head", shell=True)
         case _:
             raise ValueError(f"Unknown component: {_component}")
