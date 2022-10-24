@@ -10,9 +10,7 @@ meta = sa.MetaData()
 class BaseModelORM:
     __abstract__ = True
 
-    created_at = sa.Column(
-        sa.DateTime, default=datetime.utcnow, server_default=sa.func.now()
-    )
+    created_at = sa.Column(sa.DateTime, default=datetime.utcnow, server_default=sa.func.now())
     updated_at = sa.Column(
         sa.DateTime,
         default=datetime.utcnow,
