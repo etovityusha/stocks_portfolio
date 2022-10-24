@@ -5,6 +5,8 @@ from cachetools.func import lru_cache
 from fastapi import FastAPI
 from pydantic import BaseSettings
 
+from api.router import api_router
+
 
 class LoggerLevel(Enum):
     debug = "debug"
@@ -37,6 +39,7 @@ def get_settings():
 def create_app() -> FastAPI:
     """Fastapi factory"""
     fastapi_app = FastAPI()
+    fastapi_app.include_router(api_router)
     return fastapi_app
 
 
