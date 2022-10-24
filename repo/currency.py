@@ -18,17 +18,13 @@ class CurrencyRepo(BaseRepo):
     _orm_model = CurrencyORM
 
     def get_by_id(self, _id: int) -> CurrencyObj:
-        statement = select(self._orm_model).where(self._orm_model.id == _id)
-        result = self.session.scalars(statement).first()
-        return CurrencyObj.from_orm(result)
+        return CurrencyObj.from_orm(self._get_by_id(_id))
 
     def find(self) -> list[CurrencyObj]:
         qs = self.session.scalars(select(self._orm_model)).all()
         return [CurrencyObj.from_orm(x) for x in qs]
 
-    def update(
-        self, _id: int, code: str | None = None, name: str | None = None
-    ) -> bool:
+    def update(self, _id: int, code: str | None = None, name: str | None = None) -> bool:
         qry = update(self._orm_model).where(self._orm_model.id == _id)
         if code is not None:
             qry = qry.values(code=code)
@@ -37,3 +33,9 @@ class CurrencyRepo(BaseRepo):
         self.session.execute(qry)
         self.session.commit()
         return True
+
+    def create_new(self, code: str, name: str) -> CurrencyObj:
+        orm_obj = self._orm_model(code=code, name=name)
+        self.session.add(orm_obj)
+        self.session.commit()
+        return CurrencyObj.from_orm(orm_obj)

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class CurrencyListingObj(BaseModel):
+class CurrencyDetailsResponse(BaseModel):
     id: int
     code: str
     name: str
@@ -10,5 +10,14 @@ class CurrencyListingObj(BaseModel):
         orm_mode = True
 
 
-class CurrenciesListing(BaseModel):
-    currencies: list[CurrencyListingObj]
+class CurrenciesListingResponse(BaseModel):
+    currencies: list[CurrencyDetailsResponse]
+
+
+class CreateCurrencyRequest(BaseModel):
+    code: str
+    name: str
+
+
+class CreateCurrencyResponse(BaseModel):
+    id: int
