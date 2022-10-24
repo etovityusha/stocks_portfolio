@@ -23,3 +23,6 @@ def test_repo_update(session: Session) -> None:
 
     repo.update(_id=1, code="USD")
     assert repo.get_by_id(1) == CurrencyObj(id=1, name="US DOLLAR", code="USD")
+
+    repo.update(_id=1, code="EUR", name="euro")
+    assert repo.get_by_id(1) == CurrencyObj(id=1, name="euro", code="EUR")
