@@ -32,8 +32,6 @@ def test_currency_details(get_by_id, test_client: TestClient) -> None:
 @patch("api.currencies.views.CurrencyRepo.create_new")
 def test_post_new_currency(create_new, test_client: TestClient) -> None:
     create_new.return_value = CurrencyObj(id=3, code="TEST_CODE3", name="TEST_NAME3")
-    response = test_client.post(
-        "/currencies", json=dict(code="TEST_CODE3", name="TEST_NAME3")
-    )
+    response = test_client.post("/currencies", json=dict(code="TEST_CODE3", name="TEST_NAME3"))
     assert response.json() == {"id": 3}
     assert response.status_code == 201

@@ -17,9 +17,7 @@ router = APIRouter(prefix="/currencies", dependencies=[], tags=["currencies"])
 @router.get("", response_model=CurrenciesListingResponse)
 async def currencies_list(session: Session = Depends(get_db)):
     qs: list[CurrencyObj] = CurrencyRepo(session).find()
-    return CurrenciesListingResponse(
-        currencies=[CurrencyDetailsResponse.parse_obj(x) for x in qs]
-    )
+    return CurrenciesListingResponse(currencies=[CurrencyDetailsResponse.parse_obj(x) for x in qs])
 
 
 @router.get("/{_id}", response_model=CurrencyDetailsResponse)
@@ -31,9 +29,7 @@ async def currency_detail(
     return CurrencyDetailsResponse.parse_obj(obj)
 
 
-@router.post(
-    "", status_code=status.HTTP_201_CREATED, response_model=CreateCurrencyResponse
-)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=CreateCurrencyResponse)
 async def create_currency(
     body: CreateCurrencyRequest = Body(...),
     session: Session = Depends(get_db),

@@ -18,9 +18,7 @@ def test_session_maker() -> sessionmaker:
     create_database(testing_database_url)
     try:
         engine = create_engine(testing_database_url)
-        testing_session_maker = sessionmaker(
-            autocommit=False, autoflush=False, bind=engine
-        )
+        testing_session_maker = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         meta.create_all(bind=engine)
         yield testing_session_maker
     finally:
