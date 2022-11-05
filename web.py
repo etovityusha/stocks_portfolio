@@ -68,10 +68,14 @@ def get_settings():
     return Settings()
 
 
+def _get_engine(dsn: str):
+    return create_engine(dsn)
+
+
 @lru_cache()
 def get_session_maker(_settings: Settings) -> sessionmaker:
     url = _settings.postgres_dsn
-    engine = create_engine(url)
+    engine = _get_engine(url)
     return sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 

@@ -7,6 +7,7 @@ from alembic import context
 # access to the values within the .ini file in use.
 from models import load_all_models
 from models.base import meta
+from web import _get_engine, get_settings
 
 config = context.config
 load_all_models()
@@ -54,13 +55,11 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    from database import engine
-    connectable = engine
+
+    connectable = _get_engine(get_settings().postgres_dsn)
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

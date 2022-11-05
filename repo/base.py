@@ -6,15 +6,8 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from domain.base import BaseEntity
 from models.base import BaseModelORM
-
-
-class BaseEntity(BaseModel):
-    id: int | None
-
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
 
 
 class AbstractRepo(abc.ABC):

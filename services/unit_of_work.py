@@ -1,7 +1,8 @@
 import abc
 
+from domain.currency import Currency
 from models.currency import CurrencyORM
-from repo.currency import CurrencySqlalchemyRepo, CurrencyAbstractRepo, CurrencyObj, CurrencyFakeRepo
+from repo.currency import CurrencySqlalchemyRepo, CurrencyAbstractRepo, CurrencyFakeRepo
 
 
 class AbstractUnitOfWork(abc.ABC):
@@ -30,7 +31,7 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
 
     def __enter__(self):
         self.session = self.session_factory()
-        self.currency_repo = CurrencySqlalchemyRepo(self.session, CurrencyORM, CurrencyObj)
+        self.currency_repo = CurrencySqlalchemyRepo(self.session, CurrencyORM, Currency)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

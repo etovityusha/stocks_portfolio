@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from pydantic import BaseModel
 from starlette.testclient import TestClient
 
-from repo.currency import CurrencyObj
+from domain import Currency
 
 
 def test_currencies_listing(test_client: TestClient) -> None:
@@ -14,7 +14,7 @@ def test_currencies_listing(test_client: TestClient) -> None:
 
 @patch("services.currency.CurrencyService.get_by_id")
 def test_currency_details_success(get_by_id: MagicMock, test_client: TestClient) -> None:
-    get_by_id.return_value = CurrencyObj(id=3, code="TEST_CODE3", name="TEST_NAME3")
+    get_by_id.return_value = Currency(id=3, code="TEST_CODE3", name="TEST_NAME3")
     response = test_client.get("/currencies/3")
     assert response.status_code == 200
     assert response.json() == {"id": 3, "code": "TEST_CODE3", "name": "TEST_NAME3"}
