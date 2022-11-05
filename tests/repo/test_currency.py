@@ -2,12 +2,13 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from models.currency import CurrencyORM
 from repo.currency import CurrencySqlalchemyRepo, CurrencyObj
 
 
 @pytest.fixture()
 def repo(session: Session):
-    yield CurrencySqlalchemyRepo(session=session)
+    yield CurrencySqlalchemyRepo(session=session, orm_model=CurrencyORM, entity=CurrencyObj)
 
 
 def test_repo_get_by_id(session: Session, repo: CurrencySqlalchemyRepo) -> None:
@@ -32,4 +33,4 @@ def test_repo_update(session: Session, repo: CurrencySqlalchemyRepo) -> None:
 
 def test_repo_obj_create(session: Session, repo: CurrencySqlalchemyRepo) -> None:
     obj = repo.create_new(code="EUR", name="Euro")
-    assert obj == CurrencyObj(id=1, name="Euro", code="EUR")
+    assert obj == CurrencyObj(id=None, name="Euro", code="EUR")

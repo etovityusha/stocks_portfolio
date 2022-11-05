@@ -19,5 +19,6 @@ class CreateCurrencyRequest(BaseModel):
     name: str
 
 
-class CreateCurrencyResponse(BaseModel):
-    id: int
+class UpdateCurrencyRequest(BaseModel):
+    code: str | None
+    name: str | None

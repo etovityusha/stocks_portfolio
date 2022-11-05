@@ -1,9 +1,12 @@
 import abc
 
-from sqlalchemy.orm import Session
+from models.currency import CurrencyORM
+from repo.currency import CurrencySqlalchemyRepo, CurrencyAbstractRepo, CurrencyObj, CurrencyFakeRepo
 
 
 class AbstractUnitOfWork(abc.ABC):
+    currency_repo: CurrencyAbstractRepo
+
     @abc.abstractmethod
     def __enter__(self):
         raise NotImplementedError
@@ -26,8 +29,9 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         self.session_factory = session_factory
 
     def __enter__(self):
-        self.session: Session = self.session_factory()
-        return super().__enter__()
+        self.session = self.session_factory()
+        self.currency_repo = CurrencySqlalchemyRepo(self.session, CurrencyORM, CurrencyObj)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         super().__exit__(exc_type, exc_val, exc_tb)
@@ -42,17 +46,17 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
+        self.currency_repo = CurrencyFakeRepo()
         self.committed = False
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        return super().__exit__(exc_type, exc_val, exc_tb)
+        self.rollback()
 
     def commit(self):
         self.committed = True
 
     def rollback(self):
         pass
-
