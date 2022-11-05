@@ -6,23 +6,24 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy_utils import create_database, drop_database
 from starlette.testclient import TestClient
 
-from database import SQLALCHEMY_DATABASE_URL
-from database import get_db
 from models.base import meta
+from services.unit_of_work import AbstractUnitOfWork, FakeUnitOfWork
 from web import create_app
+
+
+TESTING_DATABASE_URL = f"postgresql://postgres:postgres@localhost:5432/stocks_portfolio_test_{uuid.uuid4()}"
 
 
 @pytest.fixture()
 def test_session_maker() -> sessionmaker:
-    testing_database_url = SQLALCHEMY_DATABASE_URL + "_testing_" + str(uuid.uuid4())
-    create_database(testing_database_url)
+    create_database(TESTING_DATABASE_URL)
     try:
-        engine = create_engine(testing_database_url)
+        engine = create_engine(TESTING_DATABASE_URL)
         testing_session_maker = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         meta.create_all(bind=engine)
         yield testing_session_maker
     finally:
-        drop_database(testing_database_url)
+        drop_database(TESTING_DATABASE_URL)
 
 
 @pytest.fixture()
@@ -37,6 +38,6 @@ def session(test_session_maker) -> Session:
 @pytest.fixture()
 def test_client() -> TestClient:
     fastapi_app = create_app()
-    fastapi_app.dependency_overrides[get_db] = lambda: None
+    fastapi_app.dependency_overrides[AbstractUnitOfWork] = lambda: FakeUnitOfWork()
     with TestClient(fastapi_app) as client:
         yield client

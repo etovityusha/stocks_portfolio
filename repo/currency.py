@@ -1,28 +1,33 @@
-from pydantic import BaseModel
-from sqlalchemy import select, update
+import abc
+
+from sqlalchemy import update
 
 from models.currency import CurrencyORM
-from repo.base import BaseRepo
+from repo.base import SqlAlchemyRepo, FakeRepo, BaseEntity, AbstractRepo
 
 
-class CurrencyObj(BaseModel):
-    id: int | None
+class CurrencyObj(BaseEntity):
     code: str
     name: str
 
-    class Config:
-        orm_mode = True
+
+class CurrencyAbstractRepo(AbstractRepo):
+    entity = CurrencyObj
+
+    @abc.abstractmethod
+    def update(self, _id: int, **kwargs):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create_new(self, code: str, name: str) -> CurrencyObj:
+        raise NotImplementedError
 
 
-class CurrencyRepo(BaseRepo):
+class CurrencySqlalchemyRepo(SqlAlchemyRepo, CurrencyAbstractRepo):
     _orm_model = CurrencyORM
 
-    def get_by_id(self, _id: int) -> CurrencyObj:
-        return CurrencyObj.from_orm(self._get_by_id(_id))
-
-    def find(self) -> list[CurrencyObj]:
-        qs = self.session.scalars(select(self._orm_model)).all()
-        return [CurrencyObj.from_orm(x) for x in qs]
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def update(self, _id: int, code: str | None = None, name: str | None = None) -> bool:
         qry = update(self._orm_model).where(self._orm_model.id == _id)
@@ -31,11 +36,18 @@ class CurrencyRepo(BaseRepo):
         if name is not None:
             qry = qry.values(name=name)
         self.session.execute(qry)
-        self.session.commit()
         return True
 
+    def create_new(self, code: str, name: str) -> BaseEntity:
+        currency = CurrencyORM(code=code, name=name)
+        self.session.add(currency)
+        return self.entity.from_orm(currency)
+
+
+class CurrencyFakeRepo(FakeRepo, CurrencyAbstractRepo):
+    entity = CurrencyObj
+
     def create_new(self, code: str, name: str) -> CurrencyObj:
-        orm_obj = self._orm_model(code=code, name=name)
-        self.session.add(orm_obj)
-        self.session.commit()
-        return CurrencyObj.from_orm(orm_obj)
+        obj = CurrencyObj(code=code, name=name, id=None)
+        self.objects.append(obj)
+        return obj
