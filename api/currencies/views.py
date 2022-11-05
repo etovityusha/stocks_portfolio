@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from database import get_db
-from repo.currency import CurrencyRepo, CurrencyObj
+from repo.currency import CurrencySqlalchemyRepo, CurrencyObj
 from .reponses import (
     CurrenciesListingResponse,
     CurrencyDetailsResponse,
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/currencies", dependencies=[], tags=["currencies"])
 
 @router.get("", response_model=CurrenciesListingResponse)
 async def currencies_list(session: Session = Depends(get_db)):
-    qs: list[CurrencyObj] = CurrencyRepo(session).find()
+    qs: list[CurrencyObj] = CurrencySqlalchemyRepo(session).find()
     return CurrenciesListingResponse(currencies=[CurrencyDetailsResponse.parse_obj(x) for x in qs])
 
 
@@ -25,7 +25,7 @@ async def currency_detail(
     _id: int,
     session: Session = Depends(get_db),
 ):
-    obj: CurrencyObj = CurrencyRepo(session).get_by_id(_id=_id)
+    obj: CurrencyObj = CurrencySqlalchemyRepo(session).get_by_id(_id=_id)
     return CurrencyDetailsResponse.parse_obj(obj)
 
 
@@ -34,7 +34,7 @@ async def create_currency(
     body: CreateCurrencyRequest = Body(...),
     session: Session = Depends(get_db),
 ):
-    obj: CurrencyObj = CurrencyRepo(session).create_new(
+    obj: CurrencyObj = CurrencySqlalchemyRepo(session).create_new(
         code=body.code,
         name=body.name,
     )

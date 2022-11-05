@@ -1,8 +1,10 @@
+import abc
+
 from pydantic import BaseModel
 from sqlalchemy import select, update
 
 from models.currency import CurrencyORM
-from repo.base import BaseRepo
+from repo.base import SqlAlchemyRepo, FakeRepo
 
 
 class CurrencyObj(BaseModel):
@@ -13,16 +15,19 @@ class CurrencyObj(BaseModel):
     class Config:
         orm_mode = True
 
+class CurrencyAbstractRepo(abc.ABC):
+    @abc.abstractmethod
+    def update(self, _id: int, **kwargs):
+        raise NotImplementedError
 
-class CurrencyRepo(BaseRepo):
+    @abc.abstractmethod
+    def create_new(self, code: str, name: str) -> CurrencyObj:
+        raise NotImplementedError
+
+
+class CurrencySqlalchemyRepo(SqlAlchemyRepo):
     _orm_model = CurrencyORM
-
-    def get_by_id(self, _id: int) -> CurrencyObj:
-        return CurrencyObj.from_orm(self._get_by_id(_id))
-
-    def find(self) -> list[CurrencyObj]:
-        qs = self.session.scalars(select(self._orm_model)).all()
-        return [CurrencyObj.from_orm(x) for x in qs]
+    entity = CurrencyObj
 
     def update(self, _id: int, code: str | None = None, name: str | None = None) -> bool:
         qry = update(self._orm_model).where(self._orm_model.id == _id)
@@ -31,11 +36,17 @@ class CurrencyRepo(BaseRepo):
         if name is not None:
             qry = qry.values(name=name)
         self.session.execute(qry)
-        self.session.commit()
         return True
 
     def create_new(self, code: str, name: str) -> CurrencyObj:
-        orm_obj = self._orm_model(code=code, name=name)
-        self.session.add(orm_obj)
-        self.session.commit()
-        return CurrencyObj.from_orm(orm_obj)
+        currency = CurrencyORM(code=code, name=name)
+        self.session.add(currency)
+        return self.entity.from_orm(currency)
+
+class CurrencyFakeRepo(FakeRepo):
+    def create_new(self, code: str, name: str):
+        self.objects.add(
+            CurrencyObj(
+
+        )
+
