@@ -1,4 +1,4 @@
-from repo.currency import CurrencyObj
+from domain import Currency
 from services.unit_of_work import AbstractUnitOfWork
 
 
@@ -9,17 +9,17 @@ class CurrencyService:
     ):
         self.uof = uof
 
-    def listing(self) -> list[CurrencyObj]:
+    def listing(self) -> list[Currency]:
         with self.uof:
             result = self.uof.currency_repo.find_all()
         return result
 
-    def get_by_id(self, _id: int) -> CurrencyObj | None:
+    def get_by_id(self, _id: int) -> Currency | None:
         with self.uof:
             result = self.uof.currency_repo.get_by_id(_id)
         return result
 
-    def create(self, code: str, name: str) -> CurrencyObj:
+    def create(self, code: str, name: str) -> Currency:
         with self.uof:
             result = self.uof.currency_repo.create_new(code=code, name=name)
             self.uof.commit()
