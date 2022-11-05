@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Body, HTTPException
 from starlette import status
 
-from repo.currency import CurrencyObj
 from services.currency import CurrencyService
 from services.unit_of_work import AbstractUnitOfWork
 from .reponses import (
@@ -25,7 +24,7 @@ async def currency_detail(
     _id: int,
     UOF: AbstractUnitOfWork = Depends(),
 ):
-    currency: CurrencyObj | None = CurrencyService(UOF).get_by_id(_id)
+    currency = CurrencyService(UOF).get_by_id(_id)
     if currency is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Currency not found")
     return CurrencyDetailsResponse.parse_obj(currency)

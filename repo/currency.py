@@ -2,24 +2,21 @@ import abc
 
 from sqlalchemy import update
 
+from domain.base import BaseEntity
 from models.currency import CurrencyORM
-from repo.base import SqlAlchemyRepo, FakeRepo, BaseEntity, AbstractRepo
-
-
-class CurrencyObj(BaseEntity):
-    code: str
-    name: str
+from repo.base import SqlAlchemyRepo, FakeRepo, AbstractRepo
+from domain import Currency
 
 
 class CurrencyAbstractRepo(AbstractRepo):
-    entity = CurrencyObj
+    entity = Currency
 
     @abc.abstractmethod
     def update(self, _id: int, **kwargs):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def create_new(self, code: str, name: str) -> CurrencyObj:
+    def create_new(self, code: str, name: str) -> Currency:
         raise NotImplementedError
 
 
@@ -45,9 +42,9 @@ class CurrencySqlalchemyRepo(SqlAlchemyRepo, CurrencyAbstractRepo):
 
 
 class CurrencyFakeRepo(FakeRepo, CurrencyAbstractRepo):
-    entity = CurrencyObj
+    entity = Currency
 
-    def create_new(self, code: str, name: str) -> CurrencyObj:
-        obj = CurrencyObj(code=code, name=name, id=None)
+    def create_new(self, code: str, name: str) -> Currency:
+        obj = Currency(code=code, name=name, id=None)
         self.objects.append(obj)
         return obj
