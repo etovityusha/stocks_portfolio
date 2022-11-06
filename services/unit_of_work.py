@@ -1,6 +1,6 @@
 import abc
 
-from domain.currency import Currency
+from domain import Currency
 from models.currency import CurrencyORM
 from repo.currency import CurrencySqlalchemyRepo, CurrencyAbstractRepo, CurrencyFakeRepo
 
