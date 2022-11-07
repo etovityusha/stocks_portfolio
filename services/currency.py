@@ -1,4 +1,4 @@
-from domain import Currency
+from domain.currency import Currency
 from services.unit_of_work import AbstractUnitOfWork
 
 

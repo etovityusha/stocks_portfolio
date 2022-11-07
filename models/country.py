@@ -10,7 +10,7 @@ class CountryORM(BaseModelORM):
     name = sa.Column(sa.String, nullable=False)
     code = sa.Column(sa.String(3), nullable=False)
     currency_id = sa.Column(sa.Integer, sa.ForeignKey("currency.id"), nullable=False)
-    currency = relationship("CurrencyORM", back_populates="countries")
+    currency = relationship("CurrencyORM")
     logo_url = sa.Column(sa.String, nullable=True)
 
     def __repr__(self):

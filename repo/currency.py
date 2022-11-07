@@ -4,7 +4,7 @@ from sqlalchemy import update
 
 from models.currency import CurrencyORM
 from repo.base import SqlAlchemyRepo, FakeRepo, AbstractRepo
-from domain import Currency
+from domain.currency import Currency
 from domain.base import BaseEntity
 
 

@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+
 from models.base import BaseModelORM
 
 
