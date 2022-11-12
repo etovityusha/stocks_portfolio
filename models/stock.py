@@ -12,6 +12,8 @@ class StockORM(BaseModelORM):
 
     isin = sa.Column(sa.String(12), nullable=False, unique=True)
     ticker = sa.Column(sa.String(8), nullable=False)
+    type_id = sa.Column(sa.Integer, sa.ForeignKey("stock_type.id"), nullable=False)
+    type = relationship("StockTypeORM")
     name = sa.Column(sa.String, nullable=False)
     currency_id = sa.Column(sa.Integer, sa.ForeignKey("currency.id"), nullable=False)
     currency = relationship("CurrencyORM", back_populates="stocks")

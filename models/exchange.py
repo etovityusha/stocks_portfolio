@@ -10,5 +10,5 @@ class ExchangeORM(BaseModelORM):
     suffix = sa.Column(sa.String, nullable=False)
 
     utc_offset = sa.Column(sa.Integer, nullable=True)
-    working_start = sa.Column(sa.Time, nullable=True)
-    working_end = sa.Column(sa.Time, nullable=True)
+    open_time = sa.Column(sa.Time, nullable=True)
+    close_time = sa.Column(sa.Time, nullable=True)
