@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from pydantic import BaseModel
 from starlette.testclient import TestClient
 
-from domain import Currency
+from domain.currency import Currency
 
 
 def test_currencies_listing(test_client: TestClient) -> None:

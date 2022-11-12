@@ -2,8 +2,9 @@ import uvicorn
 from fastapi import FastAPI
 
 from api.router import api_router
+from db import get_unit_of_work
 from services.unit_of_work import AbstractUnitOfWork
-from settings import get_unit_of_work, get_settings
+from settings import get_settings
 
 
 def create_app() -> FastAPI:

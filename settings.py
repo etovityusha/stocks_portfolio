@@ -3,9 +3,6 @@ from enum import Enum
 from cachetools.func import lru_cache
 from pydantic import BaseSettings, validator
 
-from db import get_db
-from services.unit_of_work import AbstractUnitOfWork, SqlAlchemyUnitOfWork, FakeUnitOfWork
-
 
 class LoggerLevelEnum(Enum):
     debug = "debug"
@@ -34,17 +31,16 @@ class Settings(BaseSettings):
 
     @validator("is_postgres_enabled", check_fields=False)
     def validate_postgres_settings(cls, v, values):
-        if values["unit_of_work"] == UnitOfWorkEnum.postgres:
-            if not all(
-                [
-                    values["postgres_host"],
-                    values["postgres_port"],
-                    values["postgres_user"],
-                    values["postgres_password"],
-                    values["postgres_db"],
-                ]
-            ):
-                raise ValueError("Postgres settings are not set")
+        if values["unit_of_work"] == UnitOfWorkEnum.postgres and not all(
+            [
+                values["postgres_host"],
+                values["postgres_port"],
+                values["postgres_user"],
+                values["postgres_password"],
+                values["postgres_db"],
+            ]
+        ):
+            raise ValueError("Postgres settings are not set")
 
     @property
     def postgres_dsn(self):
@@ -61,15 +57,3 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings():
     return Settings()
-
-
-def get_unit_of_work(_settings: Settings) -> AbstractUnitOfWork:
-    _val: UnitOfWorkEnum = _settings.unit_of_work
-    if _val == UnitOfWorkEnum.postgres:
-        return SqlAlchemyUnitOfWork(session_factory=get_db)
-    if _val == UnitOfWorkEnum.fake:
-        return FakeUnitOfWork()
-    if _val == UnitOfWorkEnum.mongodb:
-        raise NotImplementedError
-    else:
-        raise ValueError("Unknown unit of work")

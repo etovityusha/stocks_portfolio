@@ -2,10 +2,10 @@ import abc
 
 from sqlalchemy import update
 
+from domain.base import BaseEntity
+from domain.currency import Currency
 from models.currency import CurrencyORM
 from repo.base import SqlAlchemyRepo, FakeRepo, AbstractRepo
-from domain.currency import Currency
-from domain.base import BaseEntity
 
 
 class CurrencyAbstractRepo(AbstractRepo):
@@ -22,9 +22,6 @@ class CurrencyAbstractRepo(AbstractRepo):
 
 class CurrencySqlalchemyRepo(SqlAlchemyRepo, CurrencyAbstractRepo):
     _orm_model = CurrencyORM
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def update(self, _id: int, code: str | None = None, name: str | None = None) -> bool:
         qry = update(self._orm_model).where(self._orm_model.id == _id)
@@ -45,6 +42,6 @@ class CurrencyFakeRepo(FakeRepo, CurrencyAbstractRepo):
     entity = Currency
 
     def create_new(self, code: str, name: str) -> Currency:
-        obj = Currency(code=code, name=name, id=None)
+        obj = Currency(code=code, name=name, id=self._get_next_id())
         self.objects.append(obj)
         return obj

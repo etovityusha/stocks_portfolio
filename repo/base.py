@@ -57,16 +57,19 @@ class SqlAlchemyRepo(AbstractRepo):
 
     def get_by_id(self, _id: int) -> BaseEntity | None:
         statement = select(self._orm_model).where(self._orm_model.id == _id)
-        orm_obj = self.session.execute(statement).scalar_one_or_none()
-        if orm_obj:
+        if orm_obj := self.session.execute(statement).scalar_one_or_none():
             return self.entity.from_orm(orm_obj)
         return None
 
     def find_all(self) -> list[BaseEntity]:
-        return [self.entity.from_orm(x) for x in self._orm_model.query.all()]
+        objects = self.session.execute(select(self._orm_model)).scalars().all()
+        return [self.entity.from_orm(x) for x in objects]
 
     def find_by(self, **kwargs) -> list[BaseEntity]:
-        return [self.entity.from_orm(x) for x in self._orm_model.query.filter_by(**kwargs).all()]
+        return [
+            self.entity.from_orm(x)
+            for x in self.session.execute(select(self._orm_model).where_by(**kwargs)).scalars().all()
+        ]
 
     def delete_by_id(self, _id: int) -> int:
         return int(self._orm_model.query.filter_by(id=_id).delete())
@@ -85,17 +88,11 @@ class FakeRepo(AbstractRepo):
     entity = BaseEntity
 
     def __init__(self, objects: list[BaseEntity] = None):
-        if objects is None:
-            self.objects = []
-        else:
-            self.objects = objects
+        self.objects = [] if objects is None else objects
         super().__init__(self.entity)
 
     def get_by_id(self, _id: int) -> BaseEntity | None:
-        for obj in self.objects:
-            if obj.id == _id:
-                return obj
-        return None
+        return next((obj for obj in self.objects if obj.id == _id), None)
 
     def find_all(self) -> list[BaseModel]:
         return list(self.objects)
@@ -121,3 +118,6 @@ class FakeRepo(AbstractRepo):
 
     def exists(self, _id: int) -> bool:
         return any(obj.id == _id for obj in self.objects)
+
+    def _get_next_id(self) -> int:
+        return max((obj.id for obj in self.objects), default=0) + 1

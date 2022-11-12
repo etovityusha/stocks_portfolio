@@ -1,16 +1,23 @@
 from logging.config import fileConfig
-from os import getenv
 
 from alembic import context
+from environs import Env
+from sqlalchemy import create_engine
+
+from models import load_all_models
+from models.base import meta
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-from models import load_all_models
-from models.base import meta
-from web import _get_engine, get_settings
+
+env = Env()
+env.read_env()
 
 config = context.config
 load_all_models()
+database_url = f"postgresql://{env.str('API_POSTGRES_USER')}:{env.str('API_POSTGRES_PASSWORD')}@" \
+               f"{env.str('API_POSTGRES_HOST')}:{env.str('API_POSTGRES_PORT')}/{env.str('API_POSTGRES_DB')}"
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -40,7 +47,7 @@ def run_migrations_offline():
     script output.
     """
     context.configure(
-        url=getenv("DATABASE_URL"),
+        url=database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -56,7 +63,7 @@ def run_migrations_online():
     and associate a connection with the context.
     """
 
-    connectable = _get_engine(get_settings().postgres_dsn)
+    connectable = create_engine(database_url)
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

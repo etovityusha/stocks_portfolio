@@ -1,4 +1,7 @@
 import abc
+from functools import lru_cache
+
+from sqlalchemy.orm import Session
 
 from domain.currency import Currency
 from models.currency import CurrencyORM
@@ -30,12 +33,10 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         self.session_factory = session_factory
 
     def __enter__(self):
-        self.session = self.session_factory()
-        self.currency_repo = CurrencySqlalchemyRepo(self.session, CurrencyORM, Currency)
+        self.session: Session = self.session_factory()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        super().__exit__(exc_type, exc_val, exc_tb)
         self.session.close()
 
     def commit(self):
@@ -44,11 +45,20 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
     def rollback(self):
         self.session.rollback()
 
+    @property
+    def currency_repo(self):
+        return CurrencySqlalchemyRepo(self.session, CurrencyORM, Currency)
+
+
+@lru_cache()
+def get_fake_currency_repo():
+    return CurrencyFakeRepo()
+
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.currency_repo = CurrencyFakeRepo()
         self.committed = False
+        self.currency_repo = get_fake_currency_repo()
 
     def __enter__(self):
         return self
